@@ -1,839 +1,94 @@
-{
- "cells": [
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "# Linear Regression  \n",
-    "dataset description: https://www.kaggle.com/c/boston-housing  "
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 2,
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "import pandas as pd\n",
-    "import numpy as np\n",
-    "import matplotlib.pyplot as plt\n",
-    "from sklearn.model_selection import train_test_split\n",
-    "from sklearn import datasets, linear_model\n",
-    "#from sklearn.linear_model import Lasso, Ridge, ElasticNet\n",
-    "from sklearn.metrics import mean_squared_error, r2_score\n",
-    "from sklearn import preprocessing"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 3,
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "df=pd.read_csv('housing.csv',header=None,delim_whitespace=True)"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 4,
-   "metadata": {},
-   "outputs": [
-    {
-     "data": {
-      "text/html": [
-       "<div>\n",
-       "<style scoped>\n",
-       "    .dataframe tbody tr th:only-of-type {\n",
-       "        vertical-align: middle;\n",
-       "    }\n",
-       "\n",
-       "    .dataframe tbody tr th {\n",
-       "        vertical-align: top;\n",
-       "    }\n",
-       "\n",
-       "    .dataframe thead th {\n",
-       "        text-align: right;\n",
-       "    }\n",
-       "</style>\n",
-       "<table border=\"1\" class=\"dataframe\">\n",
-       "  <thead>\n",
-       "    <tr style=\"text-align: right;\">\n",
-       "      <th></th>\n",
-       "      <th>0</th>\n",
-       "      <th>1</th>\n",
-       "      <th>2</th>\n",
-       "      <th>3</th>\n",
-       "      <th>4</th>\n",
-       "      <th>5</th>\n",
-       "      <th>6</th>\n",
-       "      <th>7</th>\n",
-       "      <th>8</th>\n",
-       "      <th>9</th>\n",
-       "      <th>10</th>\n",
-       "      <th>11</th>\n",
-       "      <th>12</th>\n",
-       "      <th>13</th>\n",
-       "    </tr>\n",
-       "  </thead>\n",
-       "  <tbody>\n",
-       "    <tr>\n",
-       "      <th>0</th>\n",
-       "      <td>0.00632</td>\n",
-       "      <td>18.0</td>\n",
-       "      <td>2.31</td>\n",
-       "      <td>0</td>\n",
-       "      <td>0.538</td>\n",
-       "      <td>6.575</td>\n",
-       "      <td>65.2</td>\n",
-       "      <td>4.0900</td>\n",
-       "      <td>1</td>\n",
-       "      <td>296.0</td>\n",
-       "      <td>15.3</td>\n",
-       "      <td>396.90</td>\n",
-       "      <td>4.98</td>\n",
-       "      <td>24.0</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>1</th>\n",
-       "      <td>0.02731</td>\n",
-       "      <td>0.0</td>\n",
-       "      <td>7.07</td>\n",
-       "      <td>0</td>\n",
-       "      <td>0.469</td>\n",
-       "      <td>6.421</td>\n",
-       "      <td>78.9</td>\n",
-       "      <td>4.9671</td>\n",
-       "      <td>2</td>\n",
-       "      <td>242.0</td>\n",
-       "      <td>17.8</td>\n",
-       "      <td>396.90</td>\n",
-       "      <td>9.14</td>\n",
-       "      <td>21.6</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>2</th>\n",
-       "      <td>0.02729</td>\n",
-       "      <td>0.0</td>\n",
-       "      <td>7.07</td>\n",
-       "      <td>0</td>\n",
-       "      <td>0.469</td>\n",
-       "      <td>7.185</td>\n",
-       "      <td>61.1</td>\n",
-       "      <td>4.9671</td>\n",
-       "      <td>2</td>\n",
-       "      <td>242.0</td>\n",
-       "      <td>17.8</td>\n",
-       "      <td>392.83</td>\n",
-       "      <td>4.03</td>\n",
-       "      <td>34.7</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>3</th>\n",
-       "      <td>0.03237</td>\n",
-       "      <td>0.0</td>\n",
-       "      <td>2.18</td>\n",
-       "      <td>0</td>\n",
-       "      <td>0.458</td>\n",
-       "      <td>6.998</td>\n",
-       "      <td>45.8</td>\n",
-       "      <td>6.0622</td>\n",
-       "      <td>3</td>\n",
-       "      <td>222.0</td>\n",
-       "      <td>18.7</td>\n",
-       "      <td>394.63</td>\n",
-       "      <td>2.94</td>\n",
-       "      <td>33.4</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>4</th>\n",
-       "      <td>0.06905</td>\n",
-       "      <td>0.0</td>\n",
-       "      <td>2.18</td>\n",
-       "      <td>0</td>\n",
-       "      <td>0.458</td>\n",
-       "      <td>7.147</td>\n",
-       "      <td>54.2</td>\n",
-       "      <td>6.0622</td>\n",
-       "      <td>3</td>\n",
-       "      <td>222.0</td>\n",
-       "      <td>18.7</td>\n",
-       "      <td>396.90</td>\n",
-       "      <td>5.33</td>\n",
-       "      <td>36.2</td>\n",
-       "    </tr>\n",
-       "  </tbody>\n",
-       "</table>\n",
-       "</div>"
-      ],
-      "text/plain": [
-       "        0     1     2   3      4      5     6       7   8      9     10  \\\n",
-       "0  0.00632  18.0  2.31   0  0.538  6.575  65.2  4.0900   1  296.0  15.3   \n",
-       "1  0.02731   0.0  7.07   0  0.469  6.421  78.9  4.9671   2  242.0  17.8   \n",
-       "2  0.02729   0.0  7.07   0  0.469  7.185  61.1  4.9671   2  242.0  17.8   \n",
-       "3  0.03237   0.0  2.18   0  0.458  6.998  45.8  6.0622   3  222.0  18.7   \n",
-       "4  0.06905   0.0  2.18   0  0.458  7.147  54.2  6.0622   3  222.0  18.7   \n",
-       "\n",
-       "       11    12    13  \n",
-       "0  396.90  4.98  24.0  \n",
-       "1  396.90  9.14  21.6  \n",
-       "2  392.83  4.03  34.7  \n",
-       "3  394.63  2.94  33.4  \n",
-       "4  396.90  5.33  36.2  "
-      ]
-     },
-     "execution_count": 4,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
-   "source": [
-    "df.head()"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 5,
-   "metadata": {},
-   "outputs": [
-    {
-     "data": {
-      "text/html": [
-       "<div>\n",
-       "<style scoped>\n",
-       "    .dataframe tbody tr th:only-of-type {\n",
-       "        vertical-align: middle;\n",
-       "    }\n",
-       "\n",
-       "    .dataframe tbody tr th {\n",
-       "        vertical-align: top;\n",
-       "    }\n",
-       "\n",
-       "    .dataframe thead th {\n",
-       "        text-align: right;\n",
-       "    }\n",
-       "</style>\n",
-       "<table border=\"1\" class=\"dataframe\">\n",
-       "  <thead>\n",
-       "    <tr style=\"text-align: right;\">\n",
-       "      <th></th>\n",
-       "      <th>CRIM</th>\n",
-       "      <th>ZN</th>\n",
-       "      <th>INDUS</th>\n",
-       "      <th>CHAS</th>\n",
-       "      <th>NOX</th>\n",
-       "      <th>RM</th>\n",
-       "      <th>AGE</th>\n",
-       "      <th>DIS</th>\n",
-       "      <th>RAD</th>\n",
-       "      <th>TAX</th>\n",
-       "      <th>PTRATIO</th>\n",
-       "      <th>B</th>\n",
-       "      <th>LSTAT</th>\n",
-       "      <th>MEDV</th>\n",
-       "    </tr>\n",
-       "  </thead>\n",
-       "  <tbody>\n",
-       "    <tr>\n",
-       "      <th>0</th>\n",
-       "      <td>0.00632</td>\n",
-       "      <td>18.0</td>\n",
-       "      <td>2.31</td>\n",
-       "      <td>0</td>\n",
-       "      <td>0.538</td>\n",
-       "      <td>6.575</td>\n",
-       "      <td>65.2</td>\n",
-       "      <td>4.0900</td>\n",
-       "      <td>1</td>\n",
-       "      <td>296.0</td>\n",
-       "      <td>15.3</td>\n",
-       "      <td>396.90</td>\n",
-       "      <td>4.98</td>\n",
-       "      <td>24.0</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>1</th>\n",
-       "      <td>0.02731</td>\n",
-       "      <td>0.0</td>\n",
-       "      <td>7.07</td>\n",
-       "      <td>0</td>\n",
-       "      <td>0.469</td>\n",
-       "      <td>6.421</td>\n",
-       "      <td>78.9</td>\n",
-       "      <td>4.9671</td>\n",
-       "      <td>2</td>\n",
-       "      <td>242.0</td>\n",
-       "      <td>17.8</td>\n",
-       "      <td>396.90</td>\n",
-       "      <td>9.14</td>\n",
-       "      <td>21.6</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>2</th>\n",
-       "      <td>0.02729</td>\n",
-       "      <td>0.0</td>\n",
-       "      <td>7.07</td>\n",
-       "      <td>0</td>\n",
-       "      <td>0.469</td>\n",
-       "      <td>7.185</td>\n",
-       "      <td>61.1</td>\n",
-       "      <td>4.9671</td>\n",
-       "      <td>2</td>\n",
-       "      <td>242.0</td>\n",
-       "      <td>17.8</td>\n",
-       "      <td>392.83</td>\n",
-       "      <td>4.03</td>\n",
-       "      <td>34.7</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>3</th>\n",
-       "      <td>0.03237</td>\n",
-       "      <td>0.0</td>\n",
-       "      <td>2.18</td>\n",
-       "      <td>0</td>\n",
-       "      <td>0.458</td>\n",
-       "      <td>6.998</td>\n",
-       "      <td>45.8</td>\n",
-       "      <td>6.0622</td>\n",
-       "      <td>3</td>\n",
-       "      <td>222.0</td>\n",
-       "      <td>18.7</td>\n",
-       "      <td>394.63</td>\n",
-       "      <td>2.94</td>\n",
-       "      <td>33.4</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>4</th>\n",
-       "      <td>0.06905</td>\n",
-       "      <td>0.0</td>\n",
-       "      <td>2.18</td>\n",
-       "      <td>0</td>\n",
-       "      <td>0.458</td>\n",
-       "      <td>7.147</td>\n",
-       "      <td>54.2</td>\n",
-       "      <td>6.0622</td>\n",
-       "      <td>3</td>\n",
-       "      <td>222.0</td>\n",
-       "      <td>18.7</td>\n",
-       "      <td>396.90</td>\n",
-       "      <td>5.33</td>\n",
-       "      <td>36.2</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>...</th>\n",
-       "      <td>...</td>\n",
-       "      <td>...</td>\n",
-       "      <td>...</td>\n",
-       "      <td>...</td>\n",
-       "      <td>...</td>\n",
-       "      <td>...</td>\n",
-       "      <td>...</td>\n",
-       "      <td>...</td>\n",
-       "      <td>...</td>\n",
-       "      <td>...</td>\n",
-       "      <td>...</td>\n",
-       "      <td>...</td>\n",
-       "      <td>...</td>\n",
-       "      <td>...</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>501</th>\n",
-       "      <td>0.06263</td>\n",
-       "      <td>0.0</td>\n",
-       "      <td>11.93</td>\n",
-       "      <td>0</td>\n",
-       "      <td>0.573</td>\n",
-       "      <td>6.593</td>\n",
-       "      <td>69.1</td>\n",
-       "      <td>2.4786</td>\n",
-       "      <td>1</td>\n",
-       "      <td>273.0</td>\n",
-       "      <td>21.0</td>\n",
-       "      <td>391.99</td>\n",
-       "      <td>9.67</td>\n",
-       "      <td>22.4</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>502</th>\n",
-       "      <td>0.04527</td>\n",
-       "      <td>0.0</td>\n",
-       "      <td>11.93</td>\n",
-       "      <td>0</td>\n",
-       "      <td>0.573</td>\n",
-       "      <td>6.120</td>\n",
-       "      <td>76.7</td>\n",
-       "      <td>2.2875</td>\n",
-       "      <td>1</td>\n",
-       "      <td>273.0</td>\n",
-       "      <td>21.0</td>\n",
-       "      <td>396.90</td>\n",
-       "      <td>9.08</td>\n",
-       "      <td>20.6</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>503</th>\n",
-       "      <td>0.06076</td>\n",
-       "      <td>0.0</td>\n",
-       "      <td>11.93</td>\n",
-       "      <td>0</td>\n",
-       "      <td>0.573</td>\n",
-       "      <td>6.976</td>\n",
-       "      <td>91.0</td>\n",
-       "      <td>2.1675</td>\n",
-       "      <td>1</td>\n",
-       "      <td>273.0</td>\n",
-       "      <td>21.0</td>\n",
-       "      <td>396.90</td>\n",
-       "      <td>5.64</td>\n",
-       "      <td>23.9</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>504</th>\n",
-       "      <td>0.10959</td>\n",
-       "      <td>0.0</td>\n",
-       "      <td>11.93</td>\n",
-       "      <td>0</td>\n",
-       "      <td>0.573</td>\n",
-       "      <td>6.794</td>\n",
-       "      <td>89.3</td>\n",
-       "      <td>2.3889</td>\n",
-       "      <td>1</td>\n",
-       "      <td>273.0</td>\n",
-       "      <td>21.0</td>\n",
-       "      <td>393.45</td>\n",
-       "      <td>6.48</td>\n",
-       "      <td>22.0</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>505</th>\n",
-       "      <td>0.04741</td>\n",
-       "      <td>0.0</td>\n",
-       "      <td>11.93</td>\n",
-       "      <td>0</td>\n",
-       "      <td>0.573</td>\n",
-       "      <td>6.030</td>\n",
-       "      <td>80.8</td>\n",
-       "      <td>2.5050</td>\n",
-       "      <td>1</td>\n",
-       "      <td>273.0</td>\n",
-       "      <td>21.0</td>\n",
-       "      <td>396.90</td>\n",
-       "      <td>7.88</td>\n",
-       "      <td>11.9</td>\n",
-       "    </tr>\n",
-       "  </tbody>\n",
-       "</table>\n",
-       "<p>506 rows × 14 columns</p>\n",
-       "</div>"
-      ],
-      "text/plain": [
-       "        CRIM    ZN  INDUS  CHAS    NOX     RM   AGE     DIS  RAD    TAX  \\\n",
-       "0    0.00632  18.0   2.31     0  0.538  6.575  65.2  4.0900    1  296.0   \n",
-       "1    0.02731   0.0   7.07     0  0.469  6.421  78.9  4.9671    2  242.0   \n",
-       "2    0.02729   0.0   7.07     0  0.469  7.185  61.1  4.9671    2  242.0   \n",
-       "3    0.03237   0.0   2.18     0  0.458  6.998  45.8  6.0622    3  222.0   \n",
-       "4    0.06905   0.0   2.18     0  0.458  7.147  54.2  6.0622    3  222.0   \n",
-       "..       ...   ...    ...   ...    ...    ...   ...     ...  ...    ...   \n",
-       "501  0.06263   0.0  11.93     0  0.573  6.593  69.1  2.4786    1  273.0   \n",
-       "502  0.04527   0.0  11.93     0  0.573  6.120  76.7  2.2875    1  273.0   \n",
-       "503  0.06076   0.0  11.93     0  0.573  6.976  91.0  2.1675    1  273.0   \n",
-       "504  0.10959   0.0  11.93     0  0.573  6.794  89.3  2.3889    1  273.0   \n",
-       "505  0.04741   0.0  11.93     0  0.573  6.030  80.8  2.5050    1  273.0   \n",
-       "\n",
-       "     PTRATIO       B  LSTAT  MEDV  \n",
-       "0       15.3  396.90   4.98  24.0  \n",
-       "1       17.8  396.90   9.14  21.6  \n",
-       "2       17.8  392.83   4.03  34.7  \n",
-       "3       18.7  394.63   2.94  33.4  \n",
-       "4       18.7  396.90   5.33  36.2  \n",
-       "..       ...     ...    ...   ...  \n",
-       "501     21.0  391.99   9.67  22.4  \n",
-       "502     21.0  396.90   9.08  20.6  \n",
-       "503     21.0  396.90   5.64  23.9  \n",
-       "504     21.0  393.45   6.48  22.0  \n",
-       "505     21.0  396.90   7.88  11.9  \n",
-       "\n",
-       "[506 rows x 14 columns]"
-      ]
-     },
-     "execution_count": 5,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
-   "source": [
-    "df.columns=['CRIM','ZN','INDUS','CHAS','NOX','RM','AGE','DIS','RAD','TAX','PTRATIO','B','LSTAT','MEDV']\n",
-    "df"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 6,
-   "metadata": {},
-   "outputs": [
-    {
-     "data": {
-      "text/html": [
-       "<div>\n",
-       "<style scoped>\n",
-       "    .dataframe tbody tr th:only-of-type {\n",
-       "        vertical-align: middle;\n",
-       "    }\n",
-       "\n",
-       "    .dataframe tbody tr th {\n",
-       "        vertical-align: top;\n",
-       "    }\n",
-       "\n",
-       "    .dataframe thead th {\n",
-       "        text-align: right;\n",
-       "    }\n",
-       "</style>\n",
-       "<table border=\"1\" class=\"dataframe\">\n",
-       "  <thead>\n",
-       "    <tr style=\"text-align: right;\">\n",
-       "      <th></th>\n",
-       "      <th>CRIM</th>\n",
-       "      <th>ZN</th>\n",
-       "      <th>INDUS</th>\n",
-       "      <th>CHAS</th>\n",
-       "      <th>NOX</th>\n",
-       "      <th>RM</th>\n",
-       "      <th>AGE</th>\n",
-       "      <th>DIS</th>\n",
-       "      <th>RAD</th>\n",
-       "      <th>TAX</th>\n",
-       "      <th>PTRATIO</th>\n",
-       "      <th>B</th>\n",
-       "      <th>LSTAT</th>\n",
-       "      <th>MEDV</th>\n",
-       "    </tr>\n",
-       "  </thead>\n",
-       "  <tbody>\n",
-       "    <tr>\n",
-       "      <th>count</th>\n",
-       "      <td>506.000000</td>\n",
-       "      <td>506.000000</td>\n",
-       "      <td>506.000000</td>\n",
-       "      <td>506.000000</td>\n",
-       "      <td>506.000000</td>\n",
-       "      <td>506.000000</td>\n",
-       "      <td>506.000000</td>\n",
-       "      <td>506.000000</td>\n",
-       "      <td>506.000000</td>\n",
-       "      <td>506.000000</td>\n",
-       "      <td>506.000000</td>\n",
-       "      <td>506.000000</td>\n",
-       "      <td>506.000000</td>\n",
-       "      <td>506.000000</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>mean</th>\n",
-       "      <td>3.613524</td>\n",
-       "      <td>11.363636</td>\n",
-       "      <td>11.136779</td>\n",
-       "      <td>0.069170</td>\n",
-       "      <td>0.554695</td>\n",
-       "      <td>6.284634</td>\n",
-       "      <td>68.574901</td>\n",
-       "      <td>3.795043</td>\n",
-       "      <td>9.549407</td>\n",
-       "      <td>408.237154</td>\n",
-       "      <td>18.455534</td>\n",
-       "      <td>356.674032</td>\n",
-       "      <td>12.653063</td>\n",
-       "      <td>22.532806</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>std</th>\n",
-       "      <td>8.601545</td>\n",
-       "      <td>23.322453</td>\n",
-       "      <td>6.860353</td>\n",
-       "      <td>0.253994</td>\n",
-       "      <td>0.115878</td>\n",
-       "      <td>0.702617</td>\n",
-       "      <td>28.148861</td>\n",
-       "      <td>2.105710</td>\n",
-       "      <td>8.707259</td>\n",
-       "      <td>168.537116</td>\n",
-       "      <td>2.164946</td>\n",
-       "      <td>91.294864</td>\n",
-       "      <td>7.141062</td>\n",
-       "      <td>9.197104</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>min</th>\n",
-       "      <td>0.006320</td>\n",
-       "      <td>0.000000</td>\n",
-       "      <td>0.460000</td>\n",
-       "      <td>0.000000</td>\n",
-       "      <td>0.385000</td>\n",
-       "      <td>3.561000</td>\n",
-       "      <td>2.900000</td>\n",
-       "      <td>1.129600</td>\n",
-       "      <td>1.000000</td>\n",
-       "      <td>187.000000</td>\n",
-       "      <td>12.600000</td>\n",
-       "      <td>0.320000</td>\n",
-       "      <td>1.730000</td>\n",
-       "      <td>5.000000</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>25%</th>\n",
-       "      <td>0.082045</td>\n",
-       "      <td>0.000000</td>\n",
-       "      <td>5.190000</td>\n",
-       "      <td>0.000000</td>\n",
-       "      <td>0.449000</td>\n",
-       "      <td>5.885500</td>\n",
-       "      <td>45.025000</td>\n",
-       "      <td>2.100175</td>\n",
-       "      <td>4.000000</td>\n",
-       "      <td>279.000000</td>\n",
-       "      <td>17.400000</td>\n",
-       "      <td>375.377500</td>\n",
-       "      <td>6.950000</td>\n",
-       "      <td>17.025000</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>50%</th>\n",
-       "      <td>0.256510</td>\n",
-       "      <td>0.000000</td>\n",
-       "      <td>9.690000</td>\n",
-       "      <td>0.000000</td>\n",
-       "      <td>0.538000</td>\n",
-       "      <td>6.208500</td>\n",
-       "      <td>77.500000</td>\n",
-       "      <td>3.207450</td>\n",
-       "      <td>5.000000</td>\n",
-       "      <td>330.000000</td>\n",
-       "      <td>19.050000</td>\n",
-       "      <td>391.440000</td>\n",
-       "      <td>11.360000</td>\n",
-       "      <td>21.200000</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>75%</th>\n",
-       "      <td>3.677082</td>\n",
-       "      <td>12.500000</td>\n",
-       "      <td>18.100000</td>\n",
-       "      <td>0.000000</td>\n",
-       "      <td>0.624000</td>\n",
-       "      <td>6.623500</td>\n",
-       "      <td>94.075000</td>\n",
-       "      <td>5.188425</td>\n",
-       "      <td>24.000000</td>\n",
-       "      <td>666.000000</td>\n",
-       "      <td>20.200000</td>\n",
-       "      <td>396.225000</td>\n",
-       "      <td>16.955000</td>\n",
-       "      <td>25.000000</td>\n",
-       "    </tr>\n",
-       "    <tr>\n",
-       "      <th>max</th>\n",
-       "      <td>88.976200</td>\n",
-       "      <td>100.000000</td>\n",
-       "      <td>27.740000</td>\n",
-       "      <td>1.000000</td>\n",
-       "      <td>0.871000</td>\n",
-       "      <td>8.780000</td>\n",
-       "      <td>100.000000</td>\n",
-       "      <td>12.126500</td>\n",
-       "      <td>24.000000</td>\n",
-       "      <td>711.000000</td>\n",
-       "      <td>22.000000</td>\n",
-       "      <td>396.900000</td>\n",
-       "      <td>37.970000</td>\n",
-       "      <td>50.000000</td>\n",
-       "    </tr>\n",
-       "  </tbody>\n",
-       "</table>\n",
-       "</div>"
-      ],
-      "text/plain": [
-       "             CRIM          ZN       INDUS        CHAS         NOX          RM  \\\n",
-       "count  506.000000  506.000000  506.000000  506.000000  506.000000  506.000000   \n",
-       "mean     3.613524   11.363636   11.136779    0.069170    0.554695    6.284634   \n",
-       "std      8.601545   23.322453    6.860353    0.253994    0.115878    0.702617   \n",
-       "min      0.006320    0.000000    0.460000    0.000000    0.385000    3.561000   \n",
-       "25%      0.082045    0.000000    5.190000    0.000000    0.449000    5.885500   \n",
-       "50%      0.256510    0.000000    9.690000    0.000000    0.538000    6.208500   \n",
-       "75%      3.677082   12.500000   18.100000    0.000000    0.624000    6.623500   \n",
-       "max     88.976200  100.000000   27.740000    1.000000    0.871000    8.780000   \n",
-       "\n",
-       "              AGE         DIS         RAD         TAX     PTRATIO           B  \\\n",
-       "count  506.000000  506.000000  506.000000  506.000000  506.000000  506.000000   \n",
-       "mean    68.574901    3.795043    9.549407  408.237154   18.455534  356.674032   \n",
-       "std     28.148861    2.105710    8.707259  168.537116    2.164946   91.294864   \n",
-       "min      2.900000    1.129600    1.000000  187.000000   12.600000    0.320000   \n",
-       "25%     45.025000    2.100175    4.000000  279.000000   17.400000  375.377500   \n",
-       "50%     77.500000    3.207450    5.000000  330.000000   19.050000  391.440000   \n",
-       "75%     94.075000    5.188425   24.000000  666.000000   20.200000  396.225000   \n",
-       "max    100.000000   12.126500   24.000000  711.000000   22.000000  396.900000   \n",
-       "\n",
-       "            LSTAT        MEDV  \n",
-       "count  506.000000  506.000000  \n",
-       "mean    12.653063   22.532806  \n",
-       "std      7.141062    9.197104  \n",
-       "min      1.730000    5.000000  \n",
-       "25%      6.950000   17.025000  \n",
-       "50%     11.360000   21.200000  \n",
-       "75%     16.955000   25.000000  \n",
-       "max     37.970000   50.000000  "
-      ]
-     },
-     "execution_count": 6,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
-   "source": [
-    "#to see the distribution of each column\n",
-    "df.describe()"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 7,
-   "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "<class 'pandas.core.frame.DataFrame'>\n",
-      "RangeIndex: 506 entries, 0 to 505\n",
-      "Data columns (total 14 columns):\n",
-      " #   Column   Non-Null Count  Dtype  \n",
-      "---  ------   --------------  -----  \n",
-      " 0   CRIM     506 non-null    float64\n",
-      " 1   ZN       506 non-null    float64\n",
-      " 2   INDUS    506 non-null    float64\n",
-      " 3   CHAS     506 non-null    int64  \n",
-      " 4   NOX      506 non-null    float64\n",
-      " 5   RM       506 non-null    float64\n",
-      " 6   AGE      506 non-null    float64\n",
-      " 7   DIS      506 non-null    float64\n",
-      " 8   RAD      506 non-null    int64  \n",
-      " 9   TAX      506 non-null    float64\n",
-      " 10  PTRATIO  506 non-null    float64\n",
-      " 11  B        506 non-null    float64\n",
-      " 12  LSTAT    506 non-null    float64\n",
-      " 13  MEDV     506 non-null    float64\n",
-      "dtypes: float64(12), int64(2)\n",
-      "memory usage: 55.5 KB\n"
-     ]
-    }
-   ],
-   "source": [
-    "#there is no null values in this dataset\n",
-    "#the dataset has 14 columns and 506 instances\n",
-    "df.info()"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 10,
-   "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "Coefficients: [-0.94113261  1.16493558  0.16414083  0.64359612 -2.07896845  2.68215725\n",
-      "  0.05665642 -3.20542103  2.92749968 -2.23421158 -2.14717196  0.91737053\n",
-      " -3.91110255]\n",
-      "\n",
-      "Mean squared error: 10.851258067226299\n",
-      "R2 score: 0.7147021536047343\n"
-     ]
-    }
-   ],
-   "source": [
-    "y = df['MEDV']\n",
-    "X = df.drop(['MEDV'], axis=1)\n",
-    "\n",
-    "\n",
-    "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1)\n",
-    "\n",
-    "scaler = preprocessing.StandardScaler().fit(X_train)\n",
-    "X_train = scaler.transform(X_train)\n",
-    "\n",
-    "model = linear_model.LinearRegression()\n",
-    "model.fit(X_train, y_train)\n",
-    "\n",
-    "X_test = scaler.transform(X_test)\n",
-    "y_pred = model.predict(X_test)\n",
-    "\n",
-    "# The coefficients\n",
-    "print('Coefficients: {}\\n'.format(model.coef_))\n",
-    "# The mean squared error\n",
-    "print(\"Mean squared error: {}\".format(mean_squared_error(y_test, y_pred)))\n",
-    "# Explained variance score: \n",
-    "print('R2 score: {}'.format(r2_score(y_test, y_pred)))\n"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 11,
-   "metadata": {},
-   "outputs": [
-    {
-     "data": {
-      "text/plain": [
-       "Text(0.5, 1.0, 'Actual V.S. Predicted')"
-      ]
-     },
-     "execution_count": 11,
-     "metadata": {},
-     "output_type": "execute_result"
-    },
-    {
-     "data": {
-      "image/png": "iVBORw0KGgoAAAANSUhEUgAAAX4AAAEWCAYAAABhffzLAAAAOXRFWHRTb2Z0d2FyZQBNYXRwbG90bGliIHZlcnNpb24zLjMuMywgaHR0cHM6Ly9tYXRwbG90bGliLm9yZy/Il7ecAAAACXBIWXMAAAsTAAALEwEAmpwYAAAkkElEQVR4nO3de5xddXnv8c83Q8yFgCEkYiTJhEAKphSCjFRAKRcR4aWIOd7IKKFWI0gsgqSK5eSMFNQKJIeKQiMqQ5kIKKEiVgEjhUI92nALEGijgSFBLiEBISEEMnnOH2sN7Exm9uyZ2Wvf1vf9eu1X9l57XX5rNjx77ef3+z1LEYGZmeXHsGo3wMzMKsuB38wsZxz4zcxyxoHfzCxnHPjNzHLGgd/MLGcc+K0hSWqTdE2125EVSadKuqvg9UZJ0ypw3H+X9Jmsj2PZcuC3TKQB4nlJI0pcf7tAlmG79pS0VdLevbx3o6SLeyz7c0m3Stog6QVJ90g6ocRjXSXp1TQob5B0m6T9ynUuhSJiTESs7qc9UyWFpJ2yaIPVDwd+KztJU4H3AAGcWN3WbC8ingSWAZ8qXC5pHHAC0N5jk58BtwFvBd4C/C3w4gAO+a2IGANMAp4Fruq5ghL+f9Eqxv+xWRZOAf4fSZCbU/iGpMmSlkpaJ2m9pMskvR24Ajg0vTp+IV13u7RCL+mNSyWtkfRieiX+nhLb106PwA98AlgZEQ8W7H88sBfwvYh4NX3cHRED/mUSES8DS4D9C87tQkl3Ay8D0yTtl/4q2CDpvyV9rKAtu0u6KT3X3wHb/WJJr+T3SZ+PknSJpE5Jf5J0l6RRwJ3p6i+kf+dD0/U/LemR9BfaLZKaC/Z7rKRH0/1cBmig5261x4HfsnAK0JE+jpO0B4CkJuBmoBOYCuwJXBsRjwCnAb9JUxZjSzzOfwEzgXEkQfXHkkaWsN2NwHhJ7y5Y9il2vNpfD/weuEbSSd3nMRiSxgCtwH09jjkX2AVYR/LLYgnJL4tPAN+VNCNd9zvAK8BE4NPpoy8XAwcDh5H8bf4O2AYckb4/Nv07/0bSh4CvArOACcB/AD9K2zweWAqcB4wH/gAcPri/gNUSB34rqzSYNgPXR8Q9JMFidvr2IcDbgPkRsSkiXhnM1XO3iLgmItZHxNaIuAQYAexbwnabgR+TfEEhaTpJoFzSY70AjgIeBy4BnpJ0Z7p+qc5Jf8H8HhgDnFrw3lUR8XBEbAXeDzweET9Mz+c+4Abgo+kX5v8CFqR/t4fY8UuK9FyGkXwpnBkRT0ZEV0T8Z0Rs6aN9pwHfiIhH0nZ8HZiZXvWfADwcET+JiNeA/ws8PYBztxrlwG/lNge4NSKeS18v4Y10z2SgMw0wQybpnDRF8ac0uL6Z5Mq0FO0kQXUkyZX3LRHxbM+VImJtRMyLiL1JvtA2AVcPoJkXR8TYiHhrRJwYEX8oeG9NwfNm4C/TDuQX0vNpJelbmADs1GP9zj6ONx4YSfKFW4pm4NKCY24gSefsSfIl/fox0y/CNb3txOqLe/etbNI88seAJkndV4YjgLGSDiQJGlMk7dRL8O+tTOwmYHTB67cWHOs9JCmMY0iuSrdJep7Sc9B3kQS5DwGfTPdVVESskfQd0lRIGRSe8xrgjog4tudK6RX/VpIvzkfTxVP62OdzJCmhvYEHihyv8LgXRkRHL8ednh6z+7UKX1v98hW/ldNJQBcwgyT3PhN4O0ne+BTgd8BTwDcl7SxppKTunPEzwCRJbyrY3/3ALEmj047Lvyl4bxeSYLgO2EnSAmDXUhuaXr1eDfwjMJZk9M52JO0m6WuS9pE0LM15f5qk47rcbgb+TNKnJA1PH++U9PaI6CLJtbelf4sZ9Og0LzivbcAPgIWS3iapSdKhSobVriPJ9ReO978COFfSn6fn/GZJH03f+znw55JmKRkC+rcUfPla/XLgt3KaA/wwIp6IiKe7H8BlJGkLAR8E9gGeANYCH0+3/TXwMPC0pO400SLgVZIvhXaSzuJutwC/BP6HJO3xCgNPQ1xNcuV8XXcOXFKrpIfT918l6YT+FckQzoeALaR5eklT0tExfV19lywiXgLeR9Kp+0eSXPo/kvxiAphH0kfwNMloqR8W2d05wIMknd8b0v0MS0cWXQjcnaZ23hURN6bvXyup+xyPT9v0HPBR4JskHd3TgbuHeq5WffKNWMzM8sVX/GZmOePAb2aWMw78ZmY548BvZpYzdTGOf/z48TF16tRqN8PMrK7cc889z0XEhJ7L6yLwT506leXLl1e7GWZmdUVSrzO8neoxM8sZB34zs5xx4DczyxkHfjOznHHgNzPLGQd+M7My6OhYwl7T92NYUxN7Td+Pjo4l/W9UJXUxnNPMrJZ1dCzh9LPmM/qYeUw+aQab167k9LPmA9DaOrufrSuvLqpztrS0hMfxm1mt2mv6fmxumcPI5gNeX/ZK5wpGLW/nsVWPFtkyW5LuiYiWnsud6jEzG6LO1asYMWnGdstGTJpB5+pVVWpRcQ78ZmZD1DxtOlvWrtxu2Za1K2meNn3Q+8yyz8CB38xsiC5oW8DLyy7jlc4VRNdWXulcwcvLLuOCtgWD2l93n8HmljlMPnspm1vmcPpZ88sW/J3jNzMrg46OJZzXdj6dq1fRPG06F7QtGHTHbrn6DPrK8Tvwm5nVmGFNTUw+eylqemPgZXRtZc3CWWzr6ip5P+7cNTOrE1n0GRTKLPBLGinpd5IekPSwpK+ly6+S9Jik+9PHzKzaYGZWj8rdZ9BTlhO4tgBHR8RGScOBuyT9In1vfkT8JMNjm5nVre6+gfPazqfz+qTP4JJFF5VtMlhmgT+SzoON6cvh6aP2OxTMzGpAa+vszGb9Zprjl9Qk6X7gWeC2iPht+taFklZIWiRpRB/bzpW0XNLydevWZdlMM7NcyTTwR0RXRMwEJgGHSNofOBfYD3gnMA74ch/bLo6IlohomTBhh1tGmpnZIFVkVE9EvADcDrw/Ip6KxBbgh8AhlWiDmZklshzVM0HS2PT5KOBY4FFJE9NlAk4CHsqqDWZmtqMsR/VMBNolNZF8wVwfETdL+rWkCYCA+4HTMmyDmZn1kOWonhXAQb0sPzqrY5qZWf88c9fMLGcc+M3McsaB38wsZxz4zcxyxoHfzCxnHPjNzHLGgd/MLGcc+M0sM1neMNwGL8uZu2aWY903DB99zDwmnzSDzWtXcvpZ8wEyKzdspfE9d80sE+W6YbgNnu+5a2YV1bl6FSMmzdhu2YhJM+hcvarPbZwaqgyneswsE83TprN57crtrviL3TDcqaHK8RW/mWVioDcMP6/tfEYfM4+RzQegpp0Y2XwAo4+Zx3lt51e45Y3PV/xmlomB3jC8c/UqJp/US2ro+r5TQzY4vuI3s8y0ts7msVWPsq2ri8dWPUpr6+w+8/jN06azZe3K7bYvlhqywXPgN6txjdTh2Z3H39wyh8lnL2VzyxxOP2s+HR1LBpwassFzqseshjVah2dhHh9I/k3z+N1DPEtNDdngeRy/WQ1rtLHww5qamHz2UtT0xjVndG1lzcJZbOvqqmLLGpPH8ZvVocGMha9lzuPXBgd+sxrWaIHSefzakFnglzRS0u8kPSDpYUlfS5fvJem3kn4v6TpJb8qqDWb1rtECZWvrbC5fdBGjlrezZuEsRi1v53Ln8Ssusxy/JAE7R8RGScOBu4AzgbOBpRFxraQrgAci4vJi+3KO3/Kso2NJ0uG5OunwvKBtgQOllaSvHH9FOncljSYJ/KcDPwfeGhFbJR0KtEXEccW2d+A3Mxu4qnTuSmqSdD/wLHAb8AfghYjYmq6yFtgzyzaYmdn2Mg38EdEVETOBScAhwH6lbitprqTlkpavW7cuqyaaVVwlJ2Q10uQvK5+KTOCKiBck3Q4cCoyVtFN61T8JeLKPbRYDiyFJ9VSinWZZq+SErEab/GXlk2Xn7gTgtTTojwJuBf4RmAPcUNC5uyIivltsX87xW6Oo5ISsRpv8ZQNXjRz/ROB2SSuA/wJui4ibgS8DZ0v6PbA78P0M22BWUyo5IavRJn9Z+WQW+CNiRUQcFBEHRMT+EXF+unx1RBwSEftExEcjYktWbTCrNYOdkDWYXH2jTf6y8vHMXbMKGsyErGIVLct9LMsHF2kzq7CBTsgaSq7ek7/yraoTuIbKgd/yzBUtbbBcndOsTjlXb+XmwG9W45yrt3LzHbjMatxAb1pu1h/n+M3MGpRz/GZmBjjwm5nljgO/mVnOOPCbVYhLJFut8KgeswpwiWSrJR7VY1YBLpFs1eBRPWZV5BLJVksc+M0qwGUXrJY48JtVQLnKLriD2MrBnbtmFVCOsgvuILZyceeuWZ1wB7ENlDt3zepcnx3Ef3AHsQ1MyYFf0ugsG2JmxfXVQTxsxCjn+m1A+g38kg6TtBJ4NH19oKTvZt4yszqTdcfrBW0LWH/zxdt1EK//xaXsfNAHOK/t/LIeyxpbKVf8i4DjgPUAEfEAcER/G0maLOl2SSslPSzpzHR5m6QnJd2fPk4YygmY1YLB3hC9t/309eXR2jqbrZueZ8NtV/DEJbPY8KsrGHvEKYw9/GTPB7ABKWlUT0SskVS4qJQbfW4FvhQR90raBbhH0m3pe4si4uKBNdWsdp3Xdj6jj5n3esfryOYD4Jh5nNd2fskjbkoZtTN17z/rtYPX8wFsIEq54l8j6TAgJA2XdA7wSH8bRcRTEXFv+vyldJs9h9RasxpVjpm5hV8eatqJkc0HMDr98ujW23yAP/38IjZt2uSx/VayUq74TwMuJQnaTwK3AmcM5CCSpgIHAb8FDgfmSToFWE7yq+D5XraZC8wFmDJlykAOZ1ZxzdOms3ntyu2uxAc6M7dz9Somn9TLl8f1b3x59JwPsPuEt6Kd3sSwv/o8kyd5bL+Vpt8r/oh4LiJaI2KPiHhLRHwyItaXegBJY4AbgC9GxIvA5cDewEzgKeCSPo67OCJaIqJlwoQJpR7OrCrKMTO31LIOra2zeWzVo2zr6mLMLruw63FnFv2VYNZTKaN62iWNLXi9m6QflLJzScNJgn5HRCwFiIhnIqIrIrYB3wMOGVTLzTI2kFE6ra2zuXzRRYxa3s6ahbMYtbydy4vMzO1t34P58sii+JvLQjS+fmfuSrovIg7qb1kv2wloBzZExBcLlk+MiKfS52cBfxkRnyi2L8/ctUor7GgdMWkGW9au5OVllxUN5uXYN6RpnNVJWYcL2hYUPV65Z/Nmed5WeX3N3C0l8D8AHNmdh5c0DrgjIv6in+3eDfwH8CCwLV38VeBkkjRPAI8Dn+v+IuiLA79VUkfHEv567mmMO/HcTMojlDNYlztQuyxEY+kr8JfSuXsJ8BtJPwYEfAS4sL+NIuKudP2e/q2EY5pVRXcgfW3zxt5TKNcPfbx8KZ24pSpH8bes2ma1q5TO3auBWcAzwNPArIj4l6wbZlYN3UMqh+8+ObP6+eWuzV/Y2fvYqkeHlJLxfQPyoc/AL2nX9N9xJAF/Sfp4Ol1m1nC6O0vffOjHWf+LS4dcP7835arNn4VabpuVT7FUzxLgA8A9JPn4bkpfT8uwXWZV0T0ef+cZfwXAhl9dwWvr1zB81Bh+uPiKsnRwljs9U0613DYrn6Kdu+nInMkR8UTlmrQjd+5apXhUizWSQXXuRkRI+jlQdASPWaPwFa/lQSm1eu6V9M7MW2JWI8rZWdqTJ0dZLShlOOdfAp+U9DiwiTTHHxEHFN3KzLbje+ZarShlAldzb8sjojOTFvXCOX5rBJ4cZZU24By/pLeQzLTdh2T27TfSImtmNgjdk6M2rbyDP/3mOl5bv5bh4ybx2oY11W6a5UyxHP/VJKmdbwNjgH+qSIvMGlTztOm8cPePeOHOqxn33tOY8qWljDv2NHbaeTfn+q2iigX+iRHx9xFxS0R8AXBO33JvKJ2zF7QtYNN9N7P78duXUd79A+e4jLJVVNFRPWkJ5nHpTN2mHq/NcqE72GvYME497QuDvq9ua+tstm3ZXPYyymYDVSzwv5lk1m73Y1fg3vS5e1otFwpvoj583GR2/8A5Q7rpSfPeroVj1ddn4I+IqRExLSL26uXhcg2WC4X3wX1tw9ohX61nWQvHcwSsVKWM4zfLrcIyxcN3n8SWId5XN6uZwZ4jYAPR7zj+WuBx/FYthWPvN628gxfuvJrdjz+z5ur4eI6A9WYoN2Ixy6WOjiVsfOklNtz0LSac+HeM3vdwXn3uCZ771wvZtmUzzXvXTh0f30DFBqJYPf5xxR6VbKQNTrGcby3kg2uhDX3pTp00HTWP3Y76NOt/+W2euPjDjHj8btqvXMy2bW/U8amF8/ANVGwgil3xd9fhFzAFeD59PhZ4Atgr68bZ4BXL+QJVzwfXek66sFMXYMz+R7+eOilsX62cxwVtC5Lj9ignfUl6A3ezQqXU6vkecGNE/Fv6+njgpIj4XAXaBzjHPxjFcr5A1fPBtZ6THtbUxOSzl6KmN66NomsraxbOYltX1+vLauk8OjqWJJ3Gq5NO4wvaFtTEl6hVT185/lLKMr+rO+gDRMQvgMPK2Tgrv+5bCBbqHnpY7L1aaF8tKDV1UkvnkWU5aWsspQT+P0o6T9LU9PH3wB/720jSZEm3S1op6WFJZ6bLx0m6TdKq9N/dhnoStqNigasW8sGVbMNgcvCljrevhb+l2UCVEvhPBiYANwJL0+cnl7DdVuBLETEDeBdwhqQZwFeAZRExHViWvrYyKxa4auGG2pVqQ+HM24GUWWhtnc3liy5i1PJ21iycxajl7b0O26yFv6XZgEVESQ9g51LX7WP7nwLHAv9NUgAOYCLw3/1te/DBB4cN3DXXdMTUffYNDRsWU/fZN665pqOk92qhfeUydZ99Y49PfD2av3zz6489PvH1mLrPvmU7Ri38Lc16AyyPXmJqKZ27hwFXAmMiYoqkA4HPRcTnS/1ykTQVuBPYH3giIsamywU83/26xzZzgbkAU6ZMObizs2L3fbEGUmonrVkjGkrn7iLgOGA9QEQ8ABwxgAOPAW4Avhg9buSSfiP1+s0TEYsjoiUiWiZMmFDq4axOZTUW3jl4sx2VEviJiJ63CCrpUknScJKg3xERS9PFz0iamL4/EXi2xLZagxpsHr4UzsGb7aiUwL8mTfeEpOGSzgEe6W+jNI3zfeCRiFhY8NZNwJz0+RyS3L/lWOFkqcGWO+5LqZ20ZnlSSuA/DTgD2BN4EpgJlJLfPxz4FHC0pPvTxwnAN4FjJa0C3pu+tgb0+TPm8aadd0Uaxpt23pXPnzGv1/WyHgvv8e1m2yulSNu+EdFauEDS4cDdxTaKiLtISjz05pjSmmf16vNnzGNx+xLGn3ju6yUEFrcn5QO++53Ltlu3edp0Ng+x3LGZla6UK/5vl7jMKiDLgmDl3PeVV13N+A/O3y59M/6D87nyqqt3WNd5eLPK6vOKX9KhJKUZJkg6u+CtXYGmrBtmO8qyINhg991XfZjXXt7Ya/rmtZc37rCPrG5OYma963Mcv6S/Ao4kyfFfUfDWS8DPIqJixUhcpC2RZUGwwey78Mui541J/nruaYw78dwd9rfhpm/w6qYXe92fmZXXgMfxR8QdEfE1kiJtXyt4LKxk0Lc3ZNkJOph9FxuN85lTT+G5n120XfrmuZ9dxGdOPaVu0lVmjaqUzt0rJX00Il4ASIuqXRsRx2XaMttBlp2gg9l3sbs+ffc7ya+EK6/6Bq+9vJHho8cw99RTOPyww2ouXWWWN6WUbLgvIg7qb1mWnOpJFEutlDNolrrvwaSHai1dZdbIhlKyYZukKQU7aqaPMguWrSwnIw1m34MZjVNr6SqzPCrliv/9wGLgDpJx+e8B5kbELdk3L+Er/to10Ls++YrfrHIGfcUfEb8E3gFcB1wLHFzJoG+1baCzYrMcs9/bvl+85VI2vvSSO3vNChQbx79fRDwq6R3pou67bk2RNCUi7s2+edZoshyz33Pf4/d4G7H1VZqOm8/kSe7sNetWbBz/9yLis5Ju7+XtiIijs23aG5zqscFw6sfyrq9UT59X/BHx2fTfo7JsmFlWig03NcuzYqmeWcU2LKivb1aTXPzNrHfFJnB9MP33LSQ1e36dvj4K+E+SG6+b1awL2hYkOf0ecxMuWXRRtZtmVlXFUj1/DSDpVmBGRDyVvp4IXFWR1pkNgYu/mfWulHH8j0TE2wteDwMeLlyWNXfumpkN3FBm7i6TdIukUyWdCvwc+FW5G2jVU2uFzWqtPWaNpt8ibRExT9KHgSPSRYsj4sZsm2WVUmuFzWqtPWaNqN9UD7xen2d6RPxK0migKSJeyrx1Kad6sjOQse4DLc+QdXvMrLhBp3okfRb4CfDP6aI9gX8ta+usakotbNZ9Jb65ZQ6Tz17K5pY5nH7W/LKnYVxozSx7peT4zwAOB14ESG/C8pb+NpL0A0nPSnqoYFmbpCcl3Z8+Thhsw608mqdNZ8valdst622se7GbrlSjPWY2eKUE/i0R8Wr3C0k7UVpZ5quA9/eyfFFEzEwf/1ZaMy0rpRZNq9SVuG+8bpa9Uu7AdYekrwKjJB0LfB74WX8bRcSdkqYOsX2WsVLHuldqFqzH3ptlr5Rx/AI+A7yPpB7/LcCVUUKvcBr4b46I/dPXbcCpJGmj5cCXIuL5/vbjzt3qy/LuX2aWjQEXaUs3aiKZrLUf8L0ytONy4B9IUkX/AFwCfLqPY88F5gJMmTKlt1WsgnwlbtY4Srni/ynwhYh4YsA773HFX+p7PfmK38xs4IYyc3c34GFJyyTd1P0YZCMmFrz8MPBQX+tadXjWrFnjK6Vz938PZseSfgQcCYyXtBb4P8CRkmaSpHoeBz43mH1bNjxr1iwfit2BayRwGrAP8CDw/YjYWsG2vc6pnsrwrFmzxjKYVE870EIS9I8n6Yi1BuZZs2b5UCzVMyMi/gJA0veB31WmSVYtvmOVWT4Uu+J/rftJtVI8NjAD7Zjtuf7x73uvZ82a5UCxK/4DJb2YPhfJzN0X0+cREbtm3jor2UA7Zntb/5ofX8YnP/phfnFru8fqmzWwksoyV5s7d/tXSsdsYVnlnUbuzKgDT2C3Iz7V5/pmVt+GMo7f6kB/HbM9yyqPO/FcNq38dzatvKPX9c2scTnwN4j+yhn3VlZ5/PFn8qffXNfr+mbWuBz4G0R/5Yz7+kXw2vo17sg1y5lSZu5aHeiviFpfQzWHjxrDmoWz3JFrliPu3M0Jl1U2y59BlWW2xuGyymbWzVf8ZmYNysM5zcwMcOA3M8sdB34zs5xx4DczyxkHfjOznHHgNzPLGQd+M7OcceA3M8sZB34zs5zJLPBL+oGkZyU9VLBsnKTbJK1K/90tq+ObmVnvsrzivwp4f49lXwGWRcR0YFn62szMKiizwB8RdwIbeiz+ENCePm8HTsrq+GZm1rtK5/j3iIin0udPA3v0taKkuZKWS1q+bt26yrTOzCwHqta5G0lZ0D5Lg0bE4ohoiYiWCRMmVLBlZmaNrdKB/xlJEwHSf5+t8PHNzHKv0oH/JmBO+nwO8NMKH9/MLPeyHM75I+A3wL6S1kr6G+CbwLGSVgHvTV+bmVkFZXbrxYg4uY+3jsnqmGZm1j/P3DUzyxkH/gbX0bGEvabvx7CmJvaavh8dHUuq3SQzq7KGDfwOeMnf4PSz5rO5ZQ6Tz17K5pY5nH7W/Fz+LczsDUqG09e2lpaWWL58ecnrdwe80cfMY8SkGWxZu5KXl13G5YsuorV1doYtrS17Td+PzS1zGNl8wOvLXulcwajl7Ty26tEqtszMKkHSPRHRssPyRgz8DniJYU1NTD57KWp6ow8/urayZuEstnV1VbFlZlYJfQX+hkz1dK5exYhJM7ZbNmLSDDpXr6pSi6qjedp0tqxdud2yLWtX0jxtepVaZGa1oCEDvwNe4oK2Bby87DJe6VxBdG3llc4VvLzsMi5oW1DtpplZFTVk4B9KwGukTuHW1tlcvugiRi1vZ83CWYxa3p67fg4z21FD5vghCeDntZ1P5+pVNE+bzgVtC/oNeO4UNrNGkqvO3cFyp7CZNZJcde4OljuFzSwPHPgLuFPYzPLAgb+AR8GYWR5kVp2zHnV34J7Xdj6d1yedwpe4Y9fMGow7d83MGpQ7d83MDHDgNzPLnYYP/I00E9fMrBwaunO3cCbu5JNmsHntSk4/az6AO2zNLLcaunPXM3HNLM9y2bnrmbhmZjuqSuCX9LikByXdLymzcZqeiWtmtqNqXvEfFREze/sZUi6eiWtmtqOG7tz1TFwzsx1VpXNX0mPA80AA/xwRi3tZZy4wF2DKlCkHd3Z2VraRZmZ1rtY6d98dEe8AjgfOkHREzxUiYnFEtEREy4QJEyrfQjOzBlWVwB8RT6b/PgvcCBxSjXaYmeVRxQO/pJ0l7dL9HHgf8FCl22FmllfV6NzdA7hRUvfxl0TEL6vQDjOzXKp44I+I1cCBlT6umZklGnrmrpmZ7ciB38wsZ3If+F222czypqFn7vbHZZvNLI8auixzf1y22cwaWa3N3K0JLttsZnmU68Dvss1mlke5Dvwu22xmeZTrzl2XbTazPMp1566ZWSNz566ZmQEO/GZmuePAb2aWMw78ZmY548BvZpYzdTGqR9I6oB7vtj4eeK7ajchAo54XNO65Nep5QeOeWznOqzkidrhpeV0E/nolaXlvQ6nqXaOeFzTuuTXqeUHjnluW5+VUj5lZzjjwm5nljAN/thZXuwEZadTzgsY9t0Y9L2jcc8vsvJzjNzPLGV/xm5nljAO/mVnOOPCXiaQfSHpW0kMFy8ZJuk3SqvTf3arZxsHo47zaJD0p6f70cUI12zgYkiZLul3SSkkPSzozXd4In1lf51bXn5ukkZJ+J+mB9Ly+li7fS9JvJf1e0nWS3lTttg5UkXO7StJjBZ/ZzLIczzn+8pB0BLARuDoi9k+XfQvYEBHflPQVYLeI+HI12zlQfZxXG7AxIi6uZtuGQtJEYGJE3CtpF+Ae4CTgVOr/M+vr3D5GHX9ukgTsHBEbJQ0H7gLOBM4GlkbEtZKuAB6IiMur2daBKnJupwE3R8RPynk8X/GXSUTcCWzosfhDQHv6vJ3kf7660sd51b2IeCoi7k2fvwQ8AuxJY3xmfZ1bXYvExvTl8PQRwNFAd2Cs18+sr3PLhAN/tvaIiKfS508De1SzMWU2T9KKNBVUd+mQQpKmAgcBv6XBPrMe5wZ1/rlJapJ0P/AscBvwB+CFiNiarrKWOv2S63luEdH9mV2YfmaLJI0ox7Ec+Cskkpxao+TVLgf2BmYCTwGXVLU1QyBpDHAD8MWIeLHwvXr/zHo5t7r/3CKiKyJmApOAQ4D9qtui8ul5bpL2B84lOcd3AuOAsqQdHfiz9Uyab+3Ouz5b5faURUQ8k/5Hug34Hsn/gHUnzaXeAHRExNJ0cUN8Zr2dW6N8bgAR8QJwO3AoMFZS9/3DJwFPVqtd5VBwbu9P03YREVuAH1Kmz8yBP1s3AXPS53OAn1axLWXTHRhTHwYe6mvdWpV2pn0feCQiFha8VfefWV/nVu+fm6QJksamz0cBx5L0X9wOfCRdrV4/s97O7dGCixCR9F2U5TPzqJ4ykfQj4EiSUqrPAP8H+FfgemAKSVnpj0VEXXWU9nFeR5KkCwJ4HPhcQV68Lkh6N/AfwIPAtnTxV0ly4fX+mfV1bidTx5+bpANIOm+bSC5ar4+I8yVNA64lSYXcB3wyvUKuG0XO7dfABEDA/cBpBZ3Agz+eA7+ZWb441WNmljMO/GZmOePAb2aWMw78ZmY548BvZpYzDvzWcCSdJCkk9TurU9IXJY0ewrFOlXRZH8vXpRUVV0r6bB/bn5gWgzOrGAd+a0Qnk1Q3PLmEdb8IDDrw9+O6dAr+kcDXJW1X90fSThFxU0R8M6Pjm/XKgd8aSlqf5t3A3wCfKFjeJOliSQ+lBa++IOlvgbcBt0u6PV1vY8E2H5F0Vfr8g2nN9/sk/apnEC8mIp4lKSbWnNZXv0LSb4FvFf5ikLSHpBvTmuwPSDosXf7JtFb7/ZL+WVLTEP9MlnMO/NZoPgT8MiL+B1gv6eB0+VxgKjAzIg4gqWHzT8AfgaMi4qh+9nsX8K6IOIhklujfldqgdGbpNOD36aJJwGERcXaPVf8JuCMiDgTeATws6e3Ax4HD018PXUBrqcc2681O/a9iVldOBi5Nn1+bvr4HeC9wRXf53kGUYZgEXJfWTnkT8FgJ23w8LZ+whaQ8woak5Ao/joiuXtY/GjglbV8X8CdJnwIOBv4r3XYUdVo4zmqHA781DEnjSILnX0gKkronIWn+AHZTWMNkZMHzbwMLI+ImSUcCbSXs67qImNfL8k0DaI+A9og4dwDbmBXlVI81ko8A/xIRzRExNSImk1yZv4fkph2f6y7fm35JALwE7FKwj2ckvV3SMJIKlt3ezBvlfueQjWXA6Wn7miS9OV32EUlv6W63pOaMjm854cBvjeRk4MYey25Il18JPAGskPQAMDt9fzHwy+7OXeArwM3Af5LcrKRbG/BjSfcAz2XS+uQeq0dJepAkPTUjIlYC5wG3SlpB8gU2scg+zPrl6pxmZjnjK34zs5xx4DczyxkHfjOznHHgNzPLGQd+M7OcceA3M8sZB34zs5z5/1cYjmKL2385AAAAAElFTkSuQmCC\n",
-      "text/plain": [
-       "<Figure size 432x288 with 1 Axes>"
-      ]
-     },
-     "metadata": {
-      "needs_background": "light"
-     },
-     "output_type": "display_data"
-    }
-   ],
-   "source": [
-    "fig, ax = plt.subplots()\n",
-    "ax.scatter(y_test, y_pred, edgecolors=(0, 0, 0))\n",
-    "plt.xlabel('Actual Price')\n",
-    "plt.ylabel('Predicted Price')\n",
-    "plt.title('Actual V.S. Predicted')"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "metadata": {},
-   "outputs": [],
-   "source": []
-  }
- ],
- "metadata": {
-  "kernelspec": {
-   "display_name": "Python 3",
-   "language": "python",
-   "name": "python3"
-  },
-  "language_info": {
-   "codemirror_mode": {
-    "name": "ipython",
-    "version": 3
-   },
-   "file_extension": ".py",
-   "mimetype": "text/x-python",
-   "name": "python",
-   "nbconvert_exporter": "python",
-   "pygments_lexer": "ipython3",
-   "version": "3.8.5"
-  }
- },
- "nbformat": 4,
- "nbformat_minor": 2
-}
+#!/usr/bin/env python
+# coding: utf-8
+
+# # Linear Regression  
+# dataset description: https://www.kaggle.com/c/boston-housing  
+
+# In[2]:
+
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn import datasets, linear_model
+#from sklearn.linear_model import Lasso, Ridge, ElasticNet
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn import preprocessing
+
+
+# In[3]:
+
+
+df=pd.read_csv('housing.csv',header=None,delim_whitespace=True)
+
+
+# In[4]:
+
+
+df.head()
+
+
+# In[5]:
+
+
+df.columns=['CRIM','ZN','INDUS','CHAS','NOX','RM','AGE','DIS','RAD','TAX','PTRATIO','B','LSTAT','MEDV']
+df
+
+
+# In[6]:
+
+
+#to see the distribution of each column
+df.describe()
+
+
+# In[7]:
+
+
+#there is no null values in this dataset
+#the dataset has 14 columns and 506 instances
+df.info()
+
+
+# In[10]:
+
+
+y = df['MEDV']
+X = df.drop(['MEDV'], axis=1)
+
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1)
+
+scaler = preprocessing.StandardScaler().fit(X_train)
+X_train = scaler.transform(X_train)
+
+model = linear_model.LinearRegression()
+model.fit(X_train, y_train)
+
+X_test = scaler.transform(X_test)
+y_pred = model.predict(X_test)
+
+# The coefficients
+print('Coefficients: {}\n'.format(model.coef_))
+# The mean squared error
+print("Mean squared error: {}".format(mean_squared_error(y_test, y_pred)))
+# Explained variance score: 
+print('R2 score: {}'.format(r2_score(y_test, y_pred)))
+
+
+# In[11]:
+
+
+fig, ax = plt.subplots()
+ax.scatter(y_test, y_pred, edgecolors=(0, 0, 0))
+plt.xlabel('Actual Price')
+plt.ylabel('Predicted Price')
+plt.title('Actual V.S. Predicted')
+
+
+# In[ ]:
+
+
+
+
